@@ -1,6 +1,9 @@
 package rabbitmq
 
 import (
+	"fmt"
+	"os"
+	"strconv"
 	"time"
 
 	"sync/atomic"
@@ -8,7 +11,19 @@ import (
 	"github.com/streadway/amqp"
 )
 
-const delay = 3 // reconnect after delay seconds
+func getReconnDelay() int {
+	if os.Getenv("AMQP_RECONN_DELAY_SECONDS") == "" {
+		return 3
+	}
+	delay, err := strconv.Atoi(os.Getenv("AMQP_RECONN_DELAY_SECONDS"))
+	if err != nil {
+		fmt.Println("Cannot convert env `AMQP_RECONN_DELAY_SECONDS` to a number, default to 3.")
+		return 3
+	}
+	return delay
+}
+
+var delay = getReconnDelay() // reconnect after delay seconds
 
 // Connection amqp.Connection wrapper
 type Connection struct {
@@ -40,7 +55,7 @@ func (c *Connection) Channel() (*Channel, error) {
 			// reconnect if not closed by developer
 			for {
 				// wait 1s for connection reconnect
-				time.Sleep(delay * time.Second)
+				time.Sleep(time.Duration(delay) * time.Second)
 
 				ch, err := c.Connection.Channel()
 				if err == nil {
@@ -82,7 +97,7 @@ func Dial(url string) (*Connection, error) {
 			// reconnect if not closed by developer
 			for {
 				// wait 1s for reconnect
-				time.Sleep(delay * time.Second)
+				time.Sleep(time.Duration(delay) * time.Second)
 
 				conn, err := amqp.Dial(url)
 				if err == nil {
@@ -122,7 +137,7 @@ func DialCluster(urls []string) (*Connection, error) {
 
 			// reconnect with another node of cluster
 			for {
-				time.Sleep(delay * time.Second)
+				time.Sleep(time.Duration(delay) * time.Second)
 
 				newSeq := next(urls, *seq)
 				*seq = newSeq
@@ -185,7 +200,7 @@ func (ch *Channel) Consume(queue, consumer string, autoAck, exclusive, noLocal, 
 			d, err := ch.Channel.Consume(queue, consumer, autoAck, exclusive, noLocal, noWait, args)
 			if err != nil {
 				debugf("consume failed, err: %v", err)
-				time.Sleep(delay * time.Second)
+				time.Sleep(time.Duration(delay) * time.Second)
 				continue
 			}
 
@@ -194,7 +209,7 @@ func (ch *Channel) Consume(queue, consumer string, autoAck, exclusive, noLocal, 
 			}
 
 			// sleep before IsClose call. closed flag may not set before sleep.
-			time.Sleep(delay * time.Second)
+			time.Sleep(time.Duration(delay) * time.Second)
 
 			if ch.IsClosed() {
 				break
