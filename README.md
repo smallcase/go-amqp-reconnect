@@ -20,3 +20,12 @@ import "github.com/sirius1024/go-amqp-reconnect/rabbitmq"
 
 rabbitmq.DialCluster([]string{"amqp://usr:pwd@127.0.0.1:5672/vhost","amqp://usr:pwd@127.0.0.1:5673/vhost","amqp://usr:pwd@127.0.0.1:5674/vhost"})
 ```
+
+### Set reconnect delay seconds
+
+You can set reconnect delay seconds with environment variable "**AMQP_RECONN_DELAY_SECONDS**"
+e.g. 
+```sh
+# Default to 3s.
+export AMQP_RECONN_DELAY_SECONDS=10 
+```
