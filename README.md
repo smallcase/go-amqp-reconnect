@@ -1,11 +1,11 @@
 # streadway/amqp Conneciton/Channel auto reconnect wrap
-streadway/amqp Connection/Channel does not reconnect if rabbitmq server restart/down.
+streadway/amqp Connection/Channel does not reconnect if rabbitmq server restart/down and no cluster supported.
 
 To simply developers, here is auto reconnect wrap with detail comments.
 
 ## How to change existing code
 1. add import `import "github.com/sirius1024/go-amqp-reconnect/rabbitmq"`
-2. Replace `amqp.Connection`/`amqp.Channel` with `rabbitmq.Connection`/`rabbitmq.Channel`!
+2. Replace `amqp.Connection`/`amqp.Channel` with `rabbitmq.Connection`/`rabbitmq.Channel`
 
 ## Example
 ### Close by developer
