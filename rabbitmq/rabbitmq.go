@@ -8,7 +8,7 @@ import (
 
 	"sync/atomic"
 
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func getReconnDelay() int {
